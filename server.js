@@ -11,7 +11,7 @@ const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID || 'b1817dc7
 console.log('🚀 Iniciando servidor SMART...');
 console.log('📂 Directorio actual:', process.cwd());
 console.log('📄 Archivo .env existe:', require('fs').existsSync('.env'));
-console.log('🔍 Variables configuradas:');
+console.log('🔑 Variables configuradas:');
 console.log('NOTION_TOKEN:', NOTION_TOKEN ? 'Definido ✅' : 'UNDEFINED ❌');
 console.log('NOTION_DATABASE_ID:', NOTION_DATABASE_ID ? 'Definido ✅' : 'UNDEFINED ❌');
 console.log('OPENAI_API_KEY:', OPENAI_API_KEY ? 'Definido ✅' : 'UNDEFINED ❌');
@@ -24,7 +24,6 @@ const { Client } = require('@notionhq/client');
 const OpenAI = require('openai');
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 // Configurar clientes
 const notion = new Client({ auth: NOTION_TOKEN });
@@ -610,7 +609,9 @@ app.get('/status', (req, res) => {
   res.send('¡Servidor SMART funcionando! 🚀');
 });
 
-// ✅ CRÍTICO: EXPORTAR PARA VERCEL AQUÍ (antes del HTML)
+// ✅ EXPORTAR PARA VERCEL AQUÍ (DESPUÉS DE DEFINIR LAS RUTAS DE API)
+module.exports = app;
+
 // Solo iniciar el servidor si no estamos en Vercel
 if (process.env.NODE_ENV !== 'production') {
   const port = process.env.PORT || 3000;
@@ -618,9 +619,6 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(`🚀 Servidor ejecutándose en puerto ${port}`);
   });
 }
-
-// ✅ EXPORTAR PARA VERCEL
-module.exports = app;
 
 // Ruta principal - Formulario SMART
 app.get('/', (req, res) => {
