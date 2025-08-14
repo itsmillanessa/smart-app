@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment variables (MUY IMPORTANTE)
+.env
+.env.local
+.env.production
+.env.development
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Vercel
+.vercel
