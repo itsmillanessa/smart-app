@@ -1184,5 +1184,16 @@ app.get('/form', (req, res) => {
 </html>
   `);
 });
-// Exportar para Vercel
+// Al final de tu server.js, después de todas las rutas,
+// reemplaza cualquier app.listen() que tengas con:
+
+// Solo iniciar el servidor si no estamos en Vercel
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`🚀 Servidor ejecutándose en puerto ${port}`);
+  });
+}
+
+// Exportar para Vercel (esto ya lo tienes)
 module.exports = app;
