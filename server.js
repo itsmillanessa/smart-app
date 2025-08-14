@@ -1184,3 +1184,5 @@ app.get('/form', (req, res) => {
 </html>
   `);
 });
+// Exportar para Vercel
+module.exports = app;
