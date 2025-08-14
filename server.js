@@ -35,291 +35,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Ruta principal - Formulario SMART
-app.get('/', (req, res) => {
-  res.send(`
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART - Sistema de Reportes Fortinet</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            max-width: 800px; 
-            margin: 50px auto; 
-            padding: 20px; 
-            background: #f8f9fa;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 { 
-            color: #e74c3c; 
-            text-align: center; 
-            margin-bottom: 10px;
-            font-size: 2.2em;
-        }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-style: italic;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-        input, textarea, select { 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 5px; 
-            border: 2px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        input:focus, textarea:focus, select:focus {
-            border-color: #e74c3c;
-            outline: none;
-        }
-        button { 
-            background: linear-gradient(135deg, #e74c3c, #c0392b); 
-            color: white; 
-            padding: 15px 30px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.3s;
-        }
-        button:hover { 
-            background: linear-gradient(135deg, #c0392b, #a93226);
-            transform: translateY(-1px);
-        }
-        button:disabled { 
-            background: #bdc3c7; 
-            cursor: not-allowed; 
-            transform: none;
-        }
-        .loading { opacity: 0.7; pointer-events: none; }
-        .result { 
-            margin-top: 20px; 
-            padding: 20px; 
-            border-radius: 8px; 
-            border-left: 5px solid #27ae60;
-        }
-        .success { 
-            background: #d5f4e6; 
-            color: #155724; 
-            border-color: #27ae60;
-        }
-        .error { 
-            background: #f8d7da; 
-            color: #721c24; 
-            border-color: #e74c3c;
-        }
-        .details { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            margin-top: 15px; 
-            border-radius: 5px; 
-            font-size: 13px;
-            line-height: 1.5;
-        }
-        .smart-comment {
-            background: #e8f5e8;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #27ae60;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-        }
-        .client-brief {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #2196f3;
-            margin: 10px 0;
-            font-style: italic;
-        }
-        .required { color: #e74c3c; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 SMART</h1>
-        <p class="subtitle">Sistema de Reportes Técnicos - Fortinet</p>
-        
-        <form id="smartForm">
-            <div class="form-group">
-                <label for="type">¿Nuevo o Seguimiento? <span class="required">*</span></label>
-                <select id="type" required>
-                    <option value="">Selecciona tipo</option>
-                    <option value="nuevo">Nuevo</option>
-                    <option value="seguimiento">Seguimiento</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="client">Cliente <span class="required">*</span></label>
-                <input type="text" id="client" placeholder="Ej: GRUPO CYRBURGOS, ICONN, etc." required>
-            </div>
-
-            <div class="form-group">
-                <label for="title">Título de la Actividad <span class="required">*</span></label>
-                <input type="text" id="title" placeholder="Ej: Reunión con equipo técnico, Implementación FortiEDR, etc." required>
-            </div>
-
-            <div class="form-group">
-                <label for="technology">Tecnología Fortinet</label>
-                <select id="technology">
-                    <option value="">Selecciona tecnología</option>
-                    <option value="FortiGate">FortiGate</option>
-                    <option value="FortiSASE">FortiSASE</option>
-                    <option value="FortiEDR">FortiEDR</option>
-                    <option value="FortiAnalyzer">FortiAnalyzer</option>
-                    <option value="FortiManager">FortiManager</option>
-                    <option value="FortiWiFi">FortiWiFi</option>
-                    <option value="FortiClient">FortiClient</option>
-                    <option value="Multiple">Múltiples tecnologías</option>
-                    <option value="Other">Otra</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Descripción de la Actividad <span class="required">*</span></label>
-                <textarea id="description" rows="4" placeholder="Describe qué se realizó, qué se demostró, problemas encontrados, etc." required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="nextSteps">Siguientes Pasos</label>
-                <textarea id="nextSteps" rows="3" placeholder="¿Qué se hará después? ¿Fechas importantes? ¿Validaciones pendientes?"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="attendees">Asistentes</label>
-                <input type="text" id="attendees" placeholder="Ej: Juan Pérez (Cliente), María González (Fortinet), etc.">
-            </div>
-
-            <div class="form-group">
-                <label for="smartId">SMART ID</label>
-                <input type="number" id="smartId" placeholder="ID del caso SMART (si aplica)">
-            </div>
-
-            <div class="form-group">
-                <label for="salesforceId">SalesForce ID</label>
-                <input type="text" id="salesforceId" placeholder="Ej: SF123456, CASE-ABC789, etc.">
-            </div>
-
-            <button type="submit">🚀 Procesar y Generar SMART Comment</button>
-        </form>
-
-        <div id="result"></div>
-    </div>
-
-    <script>
-        document.getElementById('smartForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const form = e.target;
-            const button = form.querySelector('button');
-            const result = document.getElementById('result');
-            
-            // UI de carga
-            button.textContent = '⏳ Procesando con IA...';
-            button.disabled = true;
-            form.classList.add('loading');
-            result.innerHTML = '';
-            
-            const formData = {
-                type: document.getElementById('type').value,
-                client: document.getElementById('client').value,
-                title: document.getElementById('title').value,
-                technology: document.getElementById('technology').value,
-                description: document.getElementById('description').value,
-                nextSteps: document.getElementById('nextSteps').value,
-                attendees: document.getElementById('attendees').value,
-                smartId: document.getElementById('smartId').value,
-                salesforceId: document.getElementById('salesforceId').value
-            };
-            
-            try {
-                const response = await fetch('/api/submit-form', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ formData })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    result.innerHTML = \`
-                        <div class="result success">
-                            <h3>✅ \${data.message}</h3>
-                            
-                            \${data.processed.client_brief !== 'N/A - Follow-up' ? \`
-                            <div class="client-brief">
-                                <strong>👤 Brief del Cliente (para copiar/pegar):</strong><br>
-                                \${data.processed.client_brief}
-                            </div>
-                            \` : ''}
-                            
-                            <div class="smart-comment">
-                                <strong>📋 SMART Comment (listo para copiar/pegar):</strong><br>
-                                \${data.processed.smart_comment}
-                            </div>
-                            
-                            <div class="details">
-                                <strong>📝 Resumen del Procesamiento:</strong><br>
-                                • Tipo: \${data.original.type}<br>
-                                • Cliente: \${data.original.client}<br>
-                                • Tecnología: \${data.processed.technology}<br>
-                                • Enfoque técnico: \${data.processed.technical_focus}<br>
-                                • Título generado: \${data.processed.title}<br>
-                                • Próximas acciones: \${data.processed.next_actions}<br><br>
-                                
-                                <strong>📄 Página creada en Notion:</strong><br>
-                                ID: \${data.notionPageId}
-                            </div>
-                        </div>
-                    \`;
-                    form.reset();
-                } else {
-                    throw new Error(data.error);
-                }
-            } catch (error) {
-                result.innerHTML = \`
-                    <div class="result error">
-                        <h3>❌ Error</h3>
-                        <p>\${error.message}</p>
-                    </div>
-                \`;
-            } finally {
-                button.textContent = '🚀 Procesar y Generar SMART Comment';
-                button.disabled = false;
-                form.classList.remove('loading');
-            }
-        });
-    </script>
-</body>
-</html>
-  `);
-});
-
 // Función para buscar actividades existentes (para seguimiento)
 async function searchExistingActivity(client, technology) {
   try {
@@ -788,7 +503,7 @@ app.post('/api/search-client', async (req, res) => {
 // Ruta principal para procesar formularios
 app.post('/api/submit-form', async (req, res) => {
   try {
-    console.log('📝 Datos recibidos:', req.body);
+    console.log('🔍 Datos recibidos:', req.body);
     
     const { formData } = req.body;
 
@@ -895,13 +610,20 @@ app.get('/status', (req, res) => {
   res.send('¡Servidor SMART funcionando! 🚀');
 });
 
-// También mantener la ruta /form como alternativa
-app.get('/form', (req, res) => {
-  res.redirect('/');
-});
+// ✅ CRÍTICO: EXPORTAR PARA VERCEL AQUÍ (antes del HTML)
+// Solo iniciar el servidor si no estamos en Vercel
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`🚀 Servidor ejecutándose en puerto ${port}`);
+  });
+}
 
-// HTML actualizado para el formulario completo
-app.get('/form', (req, res) => {
+// ✅ EXPORTAR PARA VERCEL
+module.exports = app;
+
+// Ruta principal - Formulario SMART
+app.get('/', (req, res) => {
   res.send(`
 <!DOCTYPE html>
 <html lang="es">
@@ -1149,7 +871,7 @@ app.get('/form', (req, res) => {
                             </div>
                             
                             <div class="details">
-                                <strong>📝 Resumen del Procesamiento:</strong><br>
+                                <strong>🔍 Resumen del Procesamiento:</strong><br>
                                 • Tipo: \${data.original.type}<br>
                                 • Cliente: \${data.original.client}<br>
                                 • Tecnología: \${data.processed.technology}<br>
@@ -1184,16 +906,293 @@ app.get('/form', (req, res) => {
 </html>
   `);
 });
-// Al final de tu server.js, después de todas las rutas,
-// reemplaza cualquier app.listen() que tengas con:
 
-// Solo iniciar el servidor si no estamos en Vercel
-if (process.env.NODE_ENV !== 'production') {
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`🚀 Servidor ejecutándose en puerto ${port}`);
-  });
-}
+// También mantener la ruta /form como alternativa
+app.get('/form', (req, res) => {
+  res.redirect('/');
+});
 
-// Exportar para Vercel (esto ya lo tienes)
-module.exports = app;
+// HTML actualizado para el formulario completo (ruta duplicada para compatibilidad)
+app.get('/form-full', (req, res) => {
+  res.send(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART - Sistema de Reportes Fortinet</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px; 
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #e74c3c; 
+            text-align: center; 
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input, textarea, select { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 5px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #e74c3c;
+            outline: none;
+        }
+        button { 
+            background: linear-gradient(135deg, #e74c3c, #c0392b); 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        button:hover { 
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-1px);
+        }
+        button:disabled { 
+            background: #bdc3c7; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+        .loading { opacity: 0.7; pointer-events: none; }
+        .result { 
+            margin-top: 20px; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border-left: 5px solid #27ae60;
+        }
+        .success { 
+            background: #d5f4e6; 
+            color: #155724; 
+            border-color: #27ae60;
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border-color: #e74c3c;
+        }
+        .details { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            margin-top: 15px; 
+            border-radius: 5px; 
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .smart-comment {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .client-brief {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+            font-style: italic;
+        }
+        .required { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 SMART</h1>
+        <p class="subtitle">Sistema de Reportes Técnicos - Fortinet</p>
+        
+        <form id="smartForm">
+            <div class="form-group">
+                <label for="type">¿Nuevo o Seguimiento? <span class="required">*</span></label>
+                <select id="type" required>
+                    <option value="">Selecciona tipo</option>
+                    <option value="nuevo">Nuevo</option>
+                    <option value="seguimiento">Seguimiento</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="client">Cliente <span class="required">*</span></label>
+                <input type="text" id="client" placeholder="Ej: GRUPO CYRBURGOS, ICONN, etc." required>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Título de la Actividad <span class="required">*</span></label>
+                <input type="text" id="title" placeholder="Ej: Reunión con equipo técnico, Implementación FortiEDR, etc." required>
+            </div>
+
+            <div class="form-group">
+                <label for="technology">Tecnología Fortinet</label>
+                <select id="technology">
+                    <option value="">Selecciona tecnología</option>
+                    <option value="FortiGate">FortiGate</option>
+                    <option value="FortiSASE">FortiSASE</option>
+                    <option value="FortiEDR">FortiEDR</option>
+                    <option value="FortiAnalyzer">FortiAnalyzer</option>
+                    <option value="FortiManager">FortiManager</option>
+                    <option value="FortiWiFi">FortiWiFi</option>
+                    <option value="FortiClient">FortiClient</option>
+                    <option value="Multiple">Múltiples tecnologías</option>
+                    <option value="Other">Otra</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Descripción de la Actividad <span class="required">*</span></label>
+                <textarea id="description" rows="4" placeholder="Describe qué se realizó, qué se demostró, problemas encontrados, etc." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="nextSteps">Siguientes Pasos</label>
+                <textarea id="nextSteps" rows="3" placeholder="¿Qué se hará después? ¿Fechas importantes? ¿Validaciones pendientes?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="attendees">Asistentes</label>
+                <input type="text" id="attendees" placeholder="Ej: Juan Pérez (Cliente), María González (Fortinet), etc.">
+            </div>
+
+            <div class="form-group">
+                <label for="smartId">SMART ID</label>
+                <input type="number" id="smartId" placeholder="ID del caso SMART (si aplica)">
+            </div>
+
+            <div class="form-group">
+                <label for="salesforceId">SalesForce ID</label>
+                <input type="text" id="salesforceId" placeholder="Ej: SF123456, CASE-ABC789, etc.">
+            </div>
+
+            <button type="submit">🚀 Procesar y Generar SMART Comment</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('smartForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const button = form.querySelector('button');
+            const result = document.getElementById('result');
+            
+            // UI de carga
+            button.textContent = '⏳ Procesando con IA...';
+            button.disabled = true;
+            form.classList.add('loading');
+            result.innerHTML = '';
+            
+            const formData = {
+                type: document.getElementById('type').value,
+                client: document.getElementById('client').value,
+                title: document.getElementById('title').value,
+                technology: document.getElementById('technology').value,
+                description: document.getElementById('description').value,
+                nextSteps: document.getElementById('nextSteps').value,
+                attendees: document.getElementById('attendees').value,
+                smartId: document.getElementById('smartId').value,
+                salesforceId: document.getElementById('salesforceId').value
+            };
+            
+            try {
+                const response = await fetch('/api/submit-form', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ formData })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = \`
+                        <div class="result success">
+                            <h3>✅ \${data.message}</h3>
+                            
+                            \${data.processed.client_brief !== 'N/A - Follow-up' ? \`
+                            <div class="client-brief">
+                                <strong>👤 Brief del Cliente (para copiar/pegar):</strong><br>
+                                \${data.processed.client_brief}
+                            </div>
+                            \` : ''}
+                            
+                            <div class="smart-comment">
+                                <strong>📋 SMART Comment (listo para copiar/pegar):</strong><br>
+                                \${data.processed.smart_comment}
+                            </div>
+                            
+                            <div class="details">
+                                <strong>🔍 Resumen del Procesamiento:</strong><br>
+                                • Tipo: \${data.original.type}<br>
+                                • Cliente: \${data.original.client}<br>
+                                • Tecnología: \${data.processed.technology}<br>
+                                • Enfoque técnico: \${data.processed.technical_focus}<br>
+                                • Título generado: \${data.processed.title}<br>
+                                • Próximas acciones: \${data.processed.next_actions}<br><br>
+                                
+                                <strong>📄 Página creada en Notion:</strong><br>
+                                ID: \${data.notionPageId}
+                            </div>
+                        </div>
+                    \`;
+                    form.reset();
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                result.innerHTML = \`
+                    <div class="result error">
+                        <h3>❌ Error</h3>
+                        <p>\${error.message}</p>
+                    </div>
+                \`;
+            } finally {
+                button.textContent = '🚀 Procesar y Generar SMART Comment';
+                button.disabled = false;
+                form.classList.remove('loading');
+            }
+        });
+    </script>
+</body>
+</html>
+  `);
+});
